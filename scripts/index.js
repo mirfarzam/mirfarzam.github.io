@@ -19,12 +19,13 @@ function initLanguage() {
 
 function feedSite(code, contentLang){
   var content = $("#content")
+  var body = $('body');
   // Check for Farsi
   if(code=="IR") {
-    content.css("font-family", "shabnam")
+    body.css("font-family", "shabnam")
     content.css("direction", "rtl")
   } else {
-    content.css("font-family", "Source Sans Pro")
+    body.css("font-family", "Source Sans Pro")
     content.css("direction", "ltr")
   }
   // Filling the placeholders

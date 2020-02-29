@@ -2,6 +2,20 @@ body{
   padding: 0px;
   margin: 0px;
 }
+
+select#languageSelector {
+  -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    color: white;
+    background:none;
+    border : none;
+    font-size: 21px;
+}
+select#languageSelector:focus {
+  outline: none;
+}
+
 #hero{
   width: 100vw;
   height: 100vh;
@@ -22,4 +36,31 @@ body{
 
 #hero #hero-content-container #content #about{
   line-height: 1.5rem;
+}
+
+.links {
+  margin-top: 20px;
+}
+.links a {
+  margin-left: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  font-size: 1.2rem;
+}
+.links a:hover {
+  margin-left: 5px;
+  margin-right: 5px;
+  color: black;
+  font-weight: 600;
+}
+.links a.linkedin:hover{
+  color: #0077B5;
+}
+.links a.twitter:hover{
+  color: #1DA1F2;
+}
+.links a.resume:hover{
+  color: #78C257;
 }

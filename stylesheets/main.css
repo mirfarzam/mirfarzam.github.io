@@ -1,0 +1,12 @@
+body{
+  padding: 0px;
+  margin: 0px;
+}
+#hero{
+  width: 100vw;
+  height: 100vh;
+  background-image: url("../images/hero.jpeg");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}

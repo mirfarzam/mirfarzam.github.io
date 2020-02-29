@@ -1,0 +1,17 @@
+{
+  "FR" : {
+    "name" : "je m'appelle SeyedFarzam Mirmoeini",
+    "nickname" : "mais vous pouvez m'appeler Farzam ;)",
+    "about": "Je suis étudiant en master Data Science à Polytech Nice Sophia Antipolis"
+  },
+  "IR" : {
+    "name" : "من سید‌فرزام میرمعینی هستم",
+    "nickname" : "ولی شما می‌تونی منو فرزام صدا کنی ;)",
+    "about": "من دانشجوی ارشد data science در دانشگاه Polytech Nice Sophia Antipolis هستم"
+  },
+  "else":{
+    "name" : "I'm SeyedFarzam Mirmoeini",
+    "nickname" : "But you can call me Farzam ;)",
+    "about": "I'm student in master degree of Data Science at Polytech Nice Sophia Antipolis"
+  }
+}

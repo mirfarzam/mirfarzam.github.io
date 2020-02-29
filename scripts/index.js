@@ -1,24 +1,37 @@
 
-function getLanguage(codes, code) {
-  if(code == null) code = geoplugin_countryCode()
-  if(codes.indexOf(code) > -1) return code;
-  else return "EN";
+function getLanguage(code) {
+  if(code == null) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        result = JSON.parse(this.responseText);
+        code = result["alpha2Code"];
+        if((Object.keys(window.language)).indexOf(code) == -1) code = "EN";
+        $('select option[value="'+code+'"]').attr("selected",true);
+        feedSite(code, window.language[code]);
+      }
+    };
+    xhttp.open("GET", "https://restcountries.eu/rest/v2/alpha/co", true);
+    xhttp.send();
+  } else {
+    feedSite(code, window.language[code]);
+  }
 }
 
 function initLanguage() {
-  fetch('https://mirfarzam.ninja/scripts/language.json')
-    .then(res => res.json())
-    .then((out) => {
-        window.language = out;
-        var code = getLanguage(Object.keys(window.language), null);
-        var contentLang = window.language[code];
-        $('select option[value="'+code+'"]').attr("selected",true);
-        feedSite(code, contentLang);
-      }).catch(err => console.error(err));
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      window.language = JSON.parse(this.responseText);
+      code = getLanguage(null);
+    }
+  };
+  xhttp.open("GET", "https://mirfarzam.ninja/scripts/language.json", true);
+  xhttp.send();
 }
 
 function feedSite(code, contentLang){
-  var content = $("#content")
+  var content = $("#content");
   var body = $('body');
   // Check for Farsi
   if(code=="IR") {
@@ -35,9 +48,7 @@ function feedSite(code, contentLang){
 }
 
 function changeLanguage(){
-  var code = getLanguage(Object.keys(window.language), $("#languageSelector").val());
-  var contentLang = window.language[code];
-  feedSite(code, contentLang);
+  var code = getLanguage($("#languageSelector").val());
 }
 
 

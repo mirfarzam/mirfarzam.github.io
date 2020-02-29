@@ -8,5 +8,18 @@ body{
   background-image: url("../images/hero.jpeg");
   background-size: cover;
   background-position: center;
-  position: relative;
+}
+
+#hero #hero-content-container {
+  color:white;
+  text-align: center;
+  padding-top: 40vh;
+  line-height: 2.5rem;
+}
+#hero #hero-content-container #content #name{
+  font-size: 1.7rem;
+}
+
+#hero #hero-content-container #content #about{
+  line-height: 1.5rem;
 }

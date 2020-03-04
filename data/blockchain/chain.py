@@ -8,6 +8,7 @@ __email__ = "daxeelsoni44@gmail.com"
 __license__ = "MIT"
 __version__ = "0.1"
 __maintainer__ = "Daxeel Soni"
+# This file is Modified By Seyedfarzam Mirmoeini
 
 # ==================================================
 # ================= IMPORT MODULES =================
@@ -19,10 +20,12 @@ from colorama import Fore, Back, Style
 import time
 import sys
 import functools
-import json
 
 # ==================================================
 # ================ TRNSACTION CLASS ================
+# = This Class contains a basic properties of a    =
+# = transaction and also a mthod for making hash of=
+# = the object.                                  ===
 # ==================================================
 class Transaction:
     def __init__(self, data, index=0):
@@ -70,6 +73,11 @@ class Block:
         """
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=False, indent=4)
 
+    # Input : None,
+    # Output : Hashed Calculated by Hashing the Ledger like a Binary Tree
+    # This Method takes local ledger of the block and make Trace it as a binary tree
+    # all hashed transactions are leaves and each 2 child whill be hashed to make the
+    # parent finally the root is the output of this Method
     def computeMerkleRoot(self):
         merkleList = map(lambda transaction: transaction.hash, self.ledger)
         for i in range(0,3):
@@ -78,6 +86,10 @@ class Block:
             merkleList[j] = hashlib.sha256(hashData).hexdigest()
         return merkleList[0]
 
+    # Input : Difficulty as an Integer
+    # Output : None
+    # The goal of this method is calculating Hash of Block based on POW and difficulty
+    # and also invoke computeMerkleRoot() method.
     def mineBlock(self, difficulty):
         """
             Method for Proof of Work
@@ -111,6 +123,9 @@ class Blockchain:
     def createGenesisBlock(self):
         return Block()
 
+    # each new transaction will be added to an open block, as the block local ledger reachs to
+    # 8 transaction we mine the open block and append it to the blockchain and then open a new block
+    # before adding the transaction to block we check for Double Spending
     def addTransaction(self, data) :
         transaction = Transaction(data, len(self.currentBlock.ledger))
         if not self.checkDoubleSpending(transaction):
@@ -127,6 +142,10 @@ class Blockchain:
         newBlock.previousHash = self.chain[-1].hash
         return newBlock
 
+    # Input : newTransaction as a Transaction
+    # Output : Boolean
+    # This function checks if the sender has the transaction amount or not by checking while blockchain transactions
+    # it's contains the open block and all mined blocks in blockchain.
     def checkDoubleSpending(self, newTransaction):
         sender = newTransaction.senderAddress
         # Farzam Always has money

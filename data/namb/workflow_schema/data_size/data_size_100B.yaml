@@ -1,0 +1,30 @@
+datastream:
+
+  synthetic:
+    data:
+      size: 100
+      values: 100
+      distribution: uniform
+
+    flow:
+      distribution: uniform
+      rate: 0
+
+dataflow:
+
+  depth: 4
+
+  scalability:
+    parallelism: 96
+    balancing: balanced
+    variability: 0.5
+
+  connection: 
+    shape: linear 
+    routing: balanced 
+
+  workload:
+    processing: 10
+    balancing: balanced 
+
+  reliable: true

@@ -19,7 +19,7 @@ select#languageSelector:focus {
 #hero{
   width: 100vw;
   height: 100vh;
-  background-image: url("../images/hero.jpeg");
+  background-image: url("../images/hero1.jpg");
   background-size: cover;
   background-position: center;
 }

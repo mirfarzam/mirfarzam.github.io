@@ -1,0 +1,276 @@
+
+<html>
+<head>
+<link href='https://cdn.fontcdn.ir/Font/Persian/Lotus/Lotus.css' rel='stylesheet' type='text/css'>
+<link href="https://fonts.googleapis.com/css?family=Lalezar&display=swap" rel="stylesheet">
+<link href="gift.css" rel="stylesheet">
+<style>
+body {
+		background: #1D976C;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #93F9B9, #1D976C);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #93F9B9, #1D976C); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+		color: #333;
+        font-family: 'Lotus';
+        font-size: 16px;
+	}
+
+h1 span {
+    font-family: 'Lalezar', cursive;
+}    
+	
+	.amp {
+		font-style:italic;
+		font-weight:normal;
+		border: none;
+	}
+	
+	a.polaroid {
+		display: block;
+		text-decoration: none;
+		color: #333;
+		padding: 10px 10px 20px 10px;
+		width: 150px;
+		border: 1px solid #BFBFBF;
+		background-color: white;
+		z-index: 2;
+		font-size: 0.7em;
+		-webkit-box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		-moz-box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		-webkit-transition: -webkit-transform 0.5s ease-in;
+	}
+	a.polaroid:hover,
+	a.polaroid:focus,
+	a.polaroid:active {
+		z-index: 999;
+		border-color: #6A6A6A;
+		-webkit-box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		-moz-box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		-webkit-transform: rotate(0deg);
+		-moz-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	.polaroid img {
+		margin: 0 0 15px;
+		width: 150px;
+		height: 150px;
+	}
+	
+	a img {
+		border: none;
+		display: block;
+	}
+	
+	.photo-album {
+		position: relative;
+		width: 80%;
+		margin: 0 auto;
+		max-width: 70em;
+		height: 450px;
+		margin-top: 5em;
+		min-width: 800px;
+		max-width: 900px;
+	}
+	.photo-album .polaroid {
+		position: absolute;
+	}
+	.photo-album h1 {
+		position: absolute;
+		z-index: 5;
+		top: 150px;
+		text-align: center;
+		width: 100%;
+		line-height: 1.9;
+	}
+	.photo-album h1 span {
+		background-color: white;
+		padding: 0.4em 0.8em 0.3em 0.8em;
+		-webkit-box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		-moz-box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		box-shadow: 2px 2px 4px rgba(0,0, 0, 0.3);
+		border: 1px solid #6A6A6A;
+	}
+	.photo-album .small {
+		width: 75px;
+		padding: 6px 6px 12px 6px;
+		font-size: 0.6em;
+	}
+	.photo-album .small img {
+		width: 75px;
+		height: 75px;
+	}
+	.photo-album .medium {
+		width: 200px;
+		padding: 13px 13px 26px 13px;
+		font-size: 0.8em;
+	}
+	.photo-album .medium img {
+		width: 200px;
+		height: 200px;
+	}
+	.photo-album .large {
+		width: 300px;
+		padding: 20px 20px 30px 20px;
+		font-size: 1em;
+	}
+	.photo-album .large img {
+		width: 300px;
+		height: 300px;
+	}
+	.photo-album .img1 {
+		bottom: 10px;
+		right: 365px;
+		-webkit-transform: rotate(10deg);
+		-moz-transform: rotate(10deg);
+		transform: rotate(10deg);
+	}
+	.photo-album .img2 {
+		top: 50px;
+		right: 20px;
+		-webkit-transform: rotate(-4deg);
+		-moz-transform: rotate(-4deg);
+		transform: rotate(-4deg);
+	}
+	.photo-album .img3 {
+		left: 400px;
+		top: 0;
+		-webkit-transform: rotate(-5deg);
+		-moz-transform: rotate(-5deg);
+		transform: rotate(-5deg);
+	}
+	.photo-album .img4 {
+		top: 10px;
+		left: 495px;
+		-webkit-transform: rotate(-20deg);
+		-moz-transform: rotate(-20deg);
+		transform: rotate(-20deg);
+	}
+	.photo-album .img5 {
+		bottom: 100;
+		right: 80;
+		-webkit-transform: rotate(20deg);
+		-moz-transform: rotate(20deg);
+		transform: rotate(20deg);
+	}
+	.photo-album .img6 {
+		bottom: 10px;
+		right: 156px;
+		-webkit-transform: rotate(6deg);
+		-moz-transform: rotate(6deg);
+		transform: rotate(6deg);
+	}
+	.photo-album .img7 {
+		bottom:0;
+		left:400px;
+		-webkit-transform: rotate(-10deg);
+		-moz-transform: rotate(-10deg);
+		transform: rotate(-10deg);
+	}
+	.photo-album .img8 {
+		bottom: -20px;
+		left: 700px;
+		-webkit-transform: rotate(-8deg);
+		-moz-transform: rotate(-8deg);
+		transform: rotate(-8deg);
+	}
+	.photo-album .img9 {
+		bottom: 0;
+		left: 310;
+		-webkit-transform: rotate(-8deg);
+		-moz-transform: rotate(-8deg);
+		transform: rotate(-8deg);
+	}
+	.photo-album .img10 {
+		top: 0;
+		left: 20px;
+		-webkit-transform: rotate(8deg);
+		-moz-transform: rotate(8deg);
+		transform: rotate(8deg);
+	}
+	.photo-album .img11 {
+		top: 0;
+		right: 0;
+		-webkit-transform: rotate(-8deg);
+		-moz-transform: rotate(-8deg);
+		transform: rotate(-8deg);
+	}
+	.photo-album .img12 {
+		top: 0;
+		left: 680px;
+		-webkit-transform: rotate(18deg);
+		-moz-transform: rotate(18deg);
+		transform: rotate(18deg);
+	}
+	.photo-album .img13 {
+		bottom: -20px;
+		right: 630px;
+		-webkit-transform: rotate(4deg);
+		-moz-transform: rotate(4deg);
+		transform: rotate(4deg);
+	}
+	.photo-album .img14 {
+		top: 90px;
+		left: 430px;
+		-webkit-transform: rotate(15deg);
+		-moz-transform: rotate(15deg);
+		transform: rotate(15deg);
+	}
+	.photo-album .img15 {
+		left:176px;
+		top:20px;
+		-webkit-transform: rotate(-8deg);
+		-moz-transform: rotate(-8deg);
+		transform: rotate(-8deg);
+	}
+	
+	a:hover,
+	a:focus {
+		z-index: 5;
+	}
+	
+</style>
+
+</head>
+<body>
+
+<iframe width="100%" height="350" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1015651957%3Fsecret_token%3Ds-idSuq9A4ky2&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+	
+    <div class="photo-album">
+		<h1 id="text"><span id="kado">  🎉🎉 <span style="color:green; border:none;box-shadow:none;background-color:none;">بهار</span>! بهترین دخترعموی جهان! تولدت مبارک</span></h1>
+
+		<a href="https://scontent-cdg2-1.xx.fbcdn.net/v/t31.0-8/457423_330957143635230_200941845_o.jpg?_nc_cat=107&_nc_sid=2c4854&_nc_ohc=b8vAZjXCA2cAX9x8SPQ&_nc_ht=scontent-cdg2-1.xx&oh=b0033345f705b25ad9255d3464bddb5d&oe=5E99BEAE" class="medium polaroid img9">
+            <img src="https://scontent-cdg2-1.xx.fbcdn.net/v/t31.0-8/457423_330957143635230_200941845_o.jpg?_nc_cat=107&_nc_sid=2c4854&_nc_ohc=b8vAZjXCA2cAX9x8SPQ&_nc_ht=scontent-cdg2-1.xx&oh=b0033345f705b25ad9255d3464bddb5d&oe=5E99BEAE" alt="">
+            عید دیدنی خونه خاله فاطی‌اینا
+        </a>
+
+		
+		<a href="https://lh3.googleusercontent.com/l3E_0Ca5OiWUb9KIQV-KRWdzGUSu4ZmMrm8tr-_tkCOKTbfcsSAEBU51wjJL0SpIpoF1udcC7P4xeXd79i-3zWMHtdWvQHQV6dpfb4MwPck30UcFf_VX20nL98XJQ54Jc-CEaPpbqpiRJ61fzqE47CbVTPLzSLW8EEojL-JEGPcdMEC2cNXJ4XFxGAf8hPVI7H2474NYvMfKO3C-3H7iElV1_NrWf7qhYt1UC9QKYXpztj_Kcxqt2DoXvk4tVi2AseRolhmnZhDJfc9HuNpfDQpF0I6UZMoxjYM0lspV36DsgyI5zM17GIVVzk0Uy_5ch9weGcXl19PDiqIwl9XLJnv9O9CNZi5uYVx7BIgKUO9ZWPtLt7sRNO1K_Lzu0CioixvUCaU23tPUvD0ydIWkIRQIPfLcRgAM-8dCwBxfyn0DI2jAwyTwRF_AciiaO3SRMpryq98GUEaovp_Q52q2UjZrrHjM3fQcqYkfim-ieMxlP7bABhJlu_Q_ZegGT1K2ddu5xa9sLwtCD-ofKn53RJOE79tDsMTcMvzFegPBppiKMSvgdoxfgrEzqHXwFvbUFC6r_aetcYOtsKpbcApbvZW7NloG6IvHl0J9vb62yk0gNVEI6-8q1a5fTw2gKf46WrJKGho0i06mHeUjJSRV41VvetsoorZ9Ekop4L-58EAuNMURLFZeJX7fGvoGHw=w1920-h1080-no" class="medium polaroid img4">
+            <img src="https://lh3.googleusercontent.com/l3E_0Ca5OiWUb9KIQV-KRWdzGUSu4ZmMrm8tr-_tkCOKTbfcsSAEBU51wjJL0SpIpoF1udcC7P4xeXd79i-3zWMHtdWvQHQV6dpfb4MwPck30UcFf_VX20nL98XJQ54Jc-CEaPpbqpiRJ61fzqE47CbVTPLzSLW8EEojL-JEGPcdMEC2cNXJ4XFxGAf8hPVI7H2474NYvMfKO3C-3H7iElV1_NrWf7qhYt1UC9QKYXpztj_Kcxqt2DoXvk4tVi2AseRolhmnZhDJfc9HuNpfDQpF0I6UZMoxjYM0lspV36DsgyI5zM17GIVVzk0Uy_5ch9weGcXl19PDiqIwl9XLJnv9O9CNZi5uYVx7BIgKUO9ZWPtLt7sRNO1K_Lzu0CioixvUCaU23tPUvD0ydIWkIRQIPfLcRgAM-8dCwBxfyn0DI2jAwyTwRF_AciiaO3SRMpryq98GUEaovp_Q52q2UjZrrHjM3fQcqYkfim-ieMxlP7bABhJlu_Q_ZegGT1K2ddu5xa9sLwtCD-ofKn53RJOE79tDsMTcMvzFegPBppiKMSvgdoxfgrEzqHXwFvbUFC6r_aetcYOtsKpbcApbvZW7NloG6IvHl0J9vb62yk0gNVEI6-8q1a5fTw2gKf46WrJKGho0i06mHeUjJSRV41VvetsoorZ9Ekop4L-58EAuNMURLFZeJX7fGvoGHw=w1920-h1080-no" alt=""> 
+            تولدتوری خونه مامان زهرایینا
+        </a>
+
+		<a href="./images/IMG_6694EC8B8AE2-5.jpeg" class="polaroid img15">
+            <img src="./images/IMG_6694EC8B8AE2-5.jpeg" alt="">
+             مهمونی رستوران یوسف آباد
+        </a>
+
+
+        <a href="./images/a.jpg" class="polaroid img5">
+            <img src="./images/a.jpg" alt="">
+             مهمونی رستوران یوسف آباد
+        </a>
+
+	</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>    
+<script>
+$("#text").click()
+</script>
+
+</body>
+</html>

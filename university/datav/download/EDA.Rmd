@@ -1,13 +1,13 @@
 ---
 title: "Customer Revenue Analysis"
 author:
-  - Farzam, Juan, Lin, Thomas
+  - Farzam Juan Lin Thomas
   - EIT Digital
 
 date: March 22, 2020
 output:
   prettydoc::html_pretty:
-    theme: architect
+    theme: leonids
     highlight: github
 ---
 
@@ -272,7 +272,7 @@ print(rev_range)
 Now let’s look at the distribution of revenue from individual visits. Here I am using the log of transaction revenue to better display the distribution.
 
 
-According to the chart, the distribution of each user's revenue is extremely skewed. Then we employ Shapiro–Wilk test on it to test whether the user's revenue are normally distributed. Apparently, it refuse the null hypothesis that the sample are came from normally distributed population.
+According to the chart, the distribution of each user's revenue is extremely skewed. Then we employ quantile-quantile plot to check its normality. If it shows a nonlinear pattern, suggesting that the data is not normally distributed. We don't use shapiro-wilk test is because our dataset is too huge to this test(Shapiro-Wilk test will not cover for sample sizes more than 5000).
 
 ```{r,fig.width=5,fig.height=5,dpi=200, warning=FALSE}
 meanNotLog <- mean(train_data$transactionRevenue, na.rm=TRUE)
@@ -286,37 +286,49 @@ gdf %>%
   ggplot(aes(x = c(1:length(rev)), y = rev)) +
   geom_point(size = 2, color = "grey20", alpha=0.5) +
   scale_y_continuous(label = scales::dollar) + 
-  labs( x = 'Index',
-        y = 'Revenue (000$)',
-        title = 'Total revenue on each customer') +
+  labs(x = "Theoretical Quantiles", y = "Sample Quantiles") +
   theme_minimal()
-
-revenue_by_userId = gdf$rev
-shapiro.test(sample(revenue_by_userId)[1:5000])
-# sample size in shapiro.test function should between 3 and 5000
-# and revenue_by_userId is sorted, so we need to obtain 5000 of them randomly
+```
+```{r, message= FALSE,warning=FALSE,fig.width=6,fig.height=8,dpi=200}
+gdf %>% 
+  ggplot(aes(sample = rev)) +
+  stat_qq() + 
+  stat_qq_line() +
+  labs(x = "Theoretical Quantiles", y = "Sample Quantiles") +
+  theme_minimal()
 ```
 
 The log transformation is one of the most popular among the different types of transformations used to transform skewed data to approximately conform to normality. It is widely used in financial data. Now, we try it on our data.
 
-```{r,fig.width=5,fig.height=5,dpi=200}
-meanRev <- mean(log(train_data$transactionRevenue), na.rm=TRUE)
-train_data %>% 
-  ggplot(aes(x=log(transactionRevenue), y=..density..)) + 
+
+
+
+```{r, message= FALSE,warning=FALSE,fig.width=6,fig.height=8,dpi=200}
+meanRev <- mean(log(gdf$rev), na.rm=TRUE)
+
+gdf %>% 
+  ggplot(aes(x=log(rev), y=..density..)) + 
   geom_histogram(fill='steelblue', na.rm=TRUE, bins=10) + 
-  geom_density(aes(x=log(transactionRevenue)), fill='lightgrey', color='grey40', alpha=0.3, na.rm=TRUE) + 
+  geom_density(aes(x=log(rev)), fill='lightgrey', color='grey40', alpha=0.3, na.rm=TRUE) + 
   geom_vline(xintercept = meanRev, size = .5, colour = "gray30", linetype = "dashed") +
   annotate(geom="text", x=meanRev+0.7, y=.025, label=paste("Mean: ",round(meanRev,3)), colour = "white") +
   labs( title = 'Distribution of transaction revenue',
         x = 'Natural log of transaction revenue') + 
   theme_minimal()
 
-log_revenue_by_userId = log(train_data$transactionRevenue)
-shapiro.test(sample(log_revenue_by_userId)[1:5000])
+```
+
+```{r, message= FALSE,warning=FALSE,fig.width=6,fig.height=8,dpi=200}
+gdf %>% 
+  ggplot(aes(sample = log(rev))) +
+  stat_qq() + 
+  stat_qq_line() +
+  labs(x = "Theoretical Quantiles", y = "Sample Quantiles") +
+  theme_minimal()
 
 ```
 
-The mean of the natural log of transaction revenue appears to be around 4 and is shown a beautiful bell-shaped curve. Then, we try Shapiro–Wilk test on it, and result is greater than 0.1 or 0.05. We now can believe these log-transformed data was generated from normally distributed population, and employ linear regression model on it in the future.
+The mean of the natural log of transaction revenue appears to be around 4 and is shown a beautiful bell-shaped curve. Then, we draw its QQ plot, and get a quite well-fitted QQ line. We now can believe these log-transformed data was generated from normally distributed population, and employ linear regression model on it in the future.
 
 ## 3.2.Revenue in different 
 

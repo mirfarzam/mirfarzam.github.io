@@ -1,0 +1,595 @@
+---
+title: "Customer Revenue Analysis"
+author:
+  - Farzam, Juan, Lin, Thomas
+  - EIT Digital
+
+date: May 12, 2020
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+# 0.Recall
+
+In this Google Merchandise Store data set, our task is to build an algorithm that predicts the natural log of the sum of all transactions per user. Thus, for every user in the test set, the target is:
+
+$$y_{user} = \sum_{i=1}^{n} transaction_{user_i}$$
+
+$$target_{user} = \ln({y_{user}+1})$$ 
+
+Besides, our submissions are scored on the root mean squared error, which is also the metric to measure model performances in our presentation.
+
+# 1.Set up environment
+
+We mainly use library "data.table" to manipulate the data, since it is powerful, faster and SQL-format like.
+
+```{r, warning=FALSE, message=FALSE}
+
+check.packages <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+    sapply(pkg, require, character.only = TRUE)
+}
+
+show <- function(table, caption = "Data Fields") {
+  data <- kable(table, digits = getOption("digits"), caption=caption)
+  kable_styling(data,
+                font_size = 12)
+}
+
+list.of.packages <- c("keras", "car", "pROC","boot","xgboost","lubridate","knitr","MASS","kableExtra","mltools","caret","glmnet","data.table","tidyverse", "rpart","rpart.plot")
+check.packages(list.of.packages) 
+```
+
+# 2.Processing training data
+
+We simplified the data, since the size of original data set is around 30 Gigabyte, which is far beyond the computing resources we have. First, we only use a small amount of the data in our work. Second, we manually drop some features that are redundant or informationless. For example, features "networkDomain", "region", "city" all present the geographical information, and also categorical features, like sessionId, has 95% of unique values. Third, we re-grouped labels that in some features(bucketization). For instance, we divided features "operatingSystem" from 30 categories into only 6 labels with a "other" label.
+
+### 2.1.Load Data
+
+```{r, warning=FALSE, message=FALSE}
+dat <- fread("processed_data.csv") 
+glimpse(dat)
+dat <- dat[1:150000, ]
+
+```
+
+
+### 2.2.Processing 
+
+```{r, warning=FALSE, message=FALSE}
+# get outersection of two vectors
+outersect <- function(x, y) {
+  sort(c(setdiff(x, y),
+         setdiff(y, x)))
+}
+
+# some categorical features have too many unique labels, which make them unable to train in our case. Some categorical features have more 90%"
+
+for (i in c("sessionId", "fullVisitorId", "visitId")) {
+  cat(i, "'s unique rate : " , length(unique(dat[[i]]))/dim(dat)[1], "\n")
+}
+```
+
+```{r, warning=FALSE, message=FALSE}
+# we also drop features, which are considered carring redundant or useless infomation
+drop_cols <- c("adContent", "adwordsClickInfo.adNetworkType", "adwordsClickInfo.gclId", "adwordsClickInfo.page", "adwordsClickInfo.slot", "browser", "city","continent","country", "sessionId", "medium","campaign", "region","keyword","fullVisitorId","metro","networkDomain","referralPath","source","visitId")
+dat <- dat[, -..drop_cols]
+
+# feature visitStartTime can be considered a numeric feature
+dat <- dat[, visitStartTime:=as.numeric(ymd_hms((visitStartTime)))]
+dat <- dat[, ("visitStartTime") := lapply(.SD, scale), .SDcols="visitStartTime"]
+
+# according to data set introduction, the target value "transactionRevenue" is 0. log of transactions is required by this kaggle competition, and it also helps target values to be less skeptical 
+set(dat, which(is.na(dat[["transactionRevenue"]])), "transactionRevenue", 0)
+dat <- dat[, transactionRevenue:=log(transactionRevenue+1)]
+
+# Here are all numeric features in our task
+numeric_cols <- c("hits", "pageviews", "visitNumber",  "visitStartTime", 'bounces',  'newVisits', 'transactionRevenue')
+
+# Here are all character features in our task
+character_cols <- outersect(colnames(dat), c(numeric_cols,"date"))
+
+# fill missing value
+for (colname in numeric_cols) {
+  # realistic meaning of NA for numeric data is 0 in our case
+  # e.g. if a user didn't click production pages, his/her value of feature "hit" 
+  # is 0.
+  set(dat, which(is.na(dat[[colname]])), colname, 0) 
+}
+
+for (colname in character_cols) {
+  set(dat, which(is.na(dat[[colname]])), colname, "Other")
+}
+
+# Group labels that only present very few times to "Other", to simplify the data set, and also improve the generalization ability.
+set(dat, which(!dat[["operatingSystem"]] %in% c("Macintosh", 
+                                                "Chrome OS", 
+                                                "Android", 
+                                                "Windows")), 
+                                                "operatingSystem", "Other")
+
+
+set(dat, which(!dat[["channelGrouping"]] %in% c("Organic Search", 
+                                                "Referral",
+                                                "Direct",
+                                                "Social")), 
+                                                "channelGrouping", "Other")
+
+# we only consider "subContinent" instead of "country", "city" or "continent". The reason is that feature "country" has more than 200 unique labels. The feature "continent" only has 7 labels, but it is too general and lose too much information.
+
+set(dat, which(dat[["subContinent"]] %in% c("Micronesian Region", "Polynesia",
+                                             "Melanesia", "Middle Africa", 
+                                             "Caribbean", "Central Asia",
+                                             "Eastern Africa","Western Africa")), 
+                                             "subContinent", "Other")
+
+# Factorizing character features, in this way, some models will help us do one-hot encoding internally.
+dat[, (character_cols):=lapply(.SD, as.factor), .SDcols=character_cols]
+
+
+train_set <- subset(dat, date <= ymd(20170303))
+test_set <- subset(dat, date > ymd(20170303))
+train_set$date <- NULL
+test_set$date <- NULL
+```
+
+
+# 2.Baseline
+
+We first build a linear regression with k-fold cross-validation as our baseline. Howover, the summary of the model seems to have confilct with the exploratory data analysis of our previos submission. For example, according to our analysis, "hit" is "hit" is a user’s behavior that has direct relationship with transaction, but 
+the coefficient of "hit" here is negative, and it ususally means that there is an inverse relationship between purchasing and "hit". 
+
+So, we try some statistical analysis over the result.
+
+```{r, warning=FALSE, message=FALSE}
+RMSE <- function(predicted, ground_true){
+  sqrt(mean((predicted - ground_true)^2))
+}
+
+# some codes borrow from lab
+kFold.lm <- function(x, n, K)
+{
+  set.seed(2020) 
+  n_folds <- K
+  models <- list() 
+  accuracy <- matrix(NA, nrow = n_folds, ncol = 1)
+  folds_i <- sample(rep(1:n_folds, length.out = n)) # generate the folds
+  
+  for (k in 1:n_folds) {
+    test_i <- which(folds_i == k)
+    
+    # Prepare the fold datasets (train and test)
+    trainfold <- x[-test_i, ]
+    testfold <- x[test_i, ]
+    
+    fitted_model <- lm(transactionRevenue ~ .
+                       , data=trainfold)
+    predictions <- predict(fitted_model, testfold)
+    
+    accuracy[k] <- RMSE(testfold$transactionRevenue, predictions)
+    # https://stackoverflow.com/questions/5599896/how-do-i-store-arrays-of-statistical-models
+    models[[k]] <- fitted_model
+  }
+  return(list(acc = accuracy, 
+              models = models))
+}
+
+n <- dim(train_set)[1]
+K <- 10
+res <- kFold.lm(train_set[, ..numeric_cols], n, K)
+best_model_index <- which.min(res$acc)
+best_fit_lm <- res$models[[best_model_index]]
+  
+summary(best_fit_lm)
+```
+
+
+Multicollinearity is a phenomenon in which one predictor variable in a multiple regression model can be linearly predicted from the others with a substantial degree of accuracy. In other words, there are variables having linear relatedness, which makes the matrix of variables to be rank-deficient. In this way, the coefficients become very sensitive to small changes, and thus weaken the statistical power of our model.
+
+![](https://www.experfy.com/uploads/ckeditor/pictures/301/content_Formula.png)
+
+
+In our previous submission, we also found out that there is a strong relationship between pageview and hit. 
+
+```{r}
+car::vif(best_fit_lm)
+```
+
+We also try a statistical method VIF(variance inflation factor) to detect multicollinearity, and removed the the predictor variables with high VIF value. 
+
+After that, we re-train our OLS model, and test our model on test set as our baseline.
+
+```{r, warning=FALSE, message=FALSE}
+n <- dim(train_set)[1]
+K <- 10
+numeric_cols <- outersect(numeric_cols, "pageviews")
+res <- kFold.lm(train_set[, ..numeric_cols], n, K)
+best_model_index <- which.min(res$acc)
+best_fit_lm <- res$models[[best_model_index]]
+  
+summary(best_fit_lm)
+```
+
+Now, the summary is legitimate, and features "visitStartTime" and "visitNumber" now are statistically significant.
+
+A pageview is each time a visitor views a page on your website, regardless of how many hits are generated. Pageview has a strong relationship with hits, but it also contains useful information, so that why we get a lower multiple R-squared when we remove features hits. 
+
+
+We then use the fitted model to predict on the test set, and get our baseline RMSE = 0.463.
+
+```{r}
+predicted <- predict(best_fit_lm, test_set)
+lm_rmse <- RMSE(predicted, test_set[, transactionRevenue])
+cat("Baseline (RMSE): ", lm_rmse, "\n")
+```
+
+# 3.decision tree
+
+The second method we try is decision tree. 
+
+```{r, warning=FALSE, message=FALSE}
+set.seed(2020)
+fit_cart <- rpart(
+  formula = transactionRevenue ~  .,
+  data    = train_set,
+  method  = "anova", 
+  control = list(minsplit = 10, maxdepth = 12, xval = 10, cp = 0.0)
+)
+tail(fit_cart$cptable)
+```
+
+```{r}
+plotcp(fit_cart)
+```
+
+Our decision tree model has an optimal subtree of 242 splits, 385 terminal nodes, and a cross-validated error of 0.875. The model we get is too complex, and most probably is the case of overfitting. 
+
+Then we try to prune our model to reduces the complexity, and hence improves predictive accuracy by the reduction of overfitting. 
+
+```{r}
+# Minimal cost-complexity pruning
+optimalCp = fit_cart$cptable[which.min(fit_cart$cptable[,4]),1]
+pruned_cart <- prune(fit_cart, cp=optimalCp)
+pruned_cart$cptable
+```
+
+```{r}
+plotcp(pruned_cart)
+```
+
+Our CART tree now has 11 splits and 11 terminal nodes with an lower cross-validation error 0.752. 
+
+After this, we try a search strategy to tune our model. In our case, we create a hyperparameter grid that will leads to 64 different combinations.
+
+```{r}
+tune_tree <- function(hyper_grid, 
+                      data) {
+  models <- list()
+  
+  for (i in 1:nrow(hyper_grid)) {
+    # get minsplit, maxdepth values at row i
+    minsplit <- hyper_grid$minsplit[i]
+    maxdepth <- hyper_grid$maxdepth[i]
+    cp <- hyper_grid$cp[i]
+    # train a model and store in the list
+    models[[i]] <- rpart(
+      formula = formula(transactionRevenue ~  .),
+      data    = data,
+      method  = "anova", 
+      control = list(minsplit = minsplit, maxdepth = maxdepth, cp = cp)
+    )
+  }
+  return(models)
+}
+
+hyper_grid <- expand.grid(
+  minsplit = c(5, 15, 30, 50),
+  maxdepth = c(5, 12, 17, 20),
+  cp = c(0, 0.01, 0.001, 0.0001)
+)
+
+# extract the minimum cv error associated with the optimal cost complexity
+get_cp <- function(x) {
+  min <- which.min(x$cptable[, "xerror"])
+  cp <- x$cptable[min, "CP"] 
+}
+
+get_min_error <- function(x) {
+  min    <- which.min(x$cptable[, "xerror"])
+  xerror <- x$cptable[min, "xerror"] 
+}
+
+res <- tune_tree(hyper_grid, data = train_set)
+
+hyper_grid %>%
+  # extract the optimal cp and its cross validation error
+  mutate(cp = purrr::map_dbl(res, get_cp),
+         xerror = purrr::map_dbl(res, get_min_error)) %>%
+  arrange(xerror) %>%
+  # get top 5 minimal error values
+  top_n(-5, wt = xerror)
+
+```
+Now, after searching better hyperparameters, our model makes a slight improvement over our earlier model with a lower cross validation error 0.738 .
+
+```{r}
+optimal_tree <- rpart(
+  formula = transactionRevenue ~  .,
+  data    = train_set,
+  method  = "anova", 
+  control = list(minsplit = 50, maxdepth = 5, cp = 0.0001)
+)
+
+optimalCp = optimal_tree$cptable[which.min(optimal_tree$cptable[,4]),1]
+pruned_cart <- prune(optimal_tree, cp=optimalCp)
+pruned_cart$cptable
+```
+
+```{r}
+plotcp(pruned_cart)
+```
+
+```{r, warning=FALSE, message=FALSE}
+rpart.plot(pruned_cart,type=3)
+```
+
+
+Now we try our optimal tree model on our test_set, and we get a RMSE 0.426, that successfuly defeat our baseline model.
+
+```{r, warning=FALSE, message=FALSE}
+predictted <- predict(pruned_cart, test_set, type = 'vector')
+dt_rmse <- RMSE(predictted, test_set[, transactionRevenue])
+cat("Pruned Decision Tree(RMSE): ", dt_rmse, "\n")
+```
+
+# 4.Logistic Regression
+
+Our data set is highly imbalanced, since purchasing doesn't happen in 90% of the user records. Consequently, it bias the prediction of our models.
+
+In this part, we build a two-level hierarchical algorithm combining classification and regression and split the task into two steps. First, we build a binary classifier to detect whether there is transaction. Second, if true, we apply a regression method to predict the revenue. Otherwise, revenue is 0.
+
+
+```{r, warning=FALSE, message=FALSE}
+# logistic Kfold
+kFold.logistic <- function(x, n, K)
+{
+  n_folds <- K
+  model <- list()
+  accuracy <- matrix(NA, nrow = n_folds, ncol = 1)
+  folds_i <- sample(rep(1:n_folds, length.out = n)) # generate the folds
+  
+  for (k in 1:n_folds) {
+    test_i <- which(folds_i == k)
+    
+    # Prepare the fold datasets (train and test)
+    trainfold <- x[-test_i, ]
+    testfold <- x[test_i, ]
+    
+    # Now feed it to glm
+    fitted_model <- glm(y_has_revenue ~  . , data=trainfold, family="binomial")
+    
+    # Test the model on test fold
+    predictions <- predict(fitted_model, testfold, type='response')
+    predictions.results <- ifelse(predictions > 0.5, 1, 0) 
+    
+    accuracy[k] <- sum(predictions.results == testfold[, y_has_revenue])/length(test_i)
+    model[[k]] <- fitted_model
+  }
+  return(list(acc = accuracy, 
+              models = model))
+}
+
+n <- dim(train_set)[1]
+K <- 10
+
+y_has_revenue <- as.factor(ifelse(train_set$transactionRevenue > 0, 1, 0))
+train_set <- cbind(train_set, y_has_revenue)
+
+res <- kFold.logistic(train_set[, -"transactionRevenue"], n, K)
+
+acc <- res$acc
+rownames(acc) <- paste("fold-",1:10,sep="")
+colnames(acc) <- "accuracy"
+show(acc)
+# choose the model having the highest accuracy in cross validation
+best_model_index <- which.max(res$acc)
+best_logistic_fitted <- res$models[[best_model_index]]
+```
+
+
+Then we try to find an optimal threshold based on false positive rate and the false negative rate.
+
+```{r, warning=FALSE, message=FALSE}
+get_logistic_pred <- function(mod, data,  pos = 1, neg = 0, cut = 0.5) {
+  probs = predict(mod, newdata = data, type = "response")
+  pred <- ifelse(probs > cut, pos, neg)
+  return(pred)
+}
+
+find_threshold.logistic <- function(model, test_x, test_y, 
+                                    thresholds =c(0.1, 0.3, 0.5, 0.7, 0.9)) {
+  metrics <- NULL
+  for (i in 1:length(thresholds)) {
+    test_pred <- get_logistic_pred(model, data = test_x,
+                                       pos = 1, neg = 0, 
+                                       cut = thresholds[i])
+    test_pred_table <- table(predicted = test_pred, actual = test_y)
+    test_con_mat <- confusionMatrix(test_pred_table, positive = "1")
+    metrics <- rbind(metrics, c(test_con_mat$overall["Accuracy"], 
+                               test_con_mat$byClass["Sensitivity"], 
+                               test_con_mat$byClass["Specificity"]))
+  }
+  
+  rownames(metrics) <- paste("cutoff=", thresholds, sep="")
+  return(metrics)
+} 
+
+y_has_revenue_test <- as.factor(ifelse(test_set$transactionRevenue > 0, 1, 0))
+
+metrics <- find_threshold.logistic(best_logistic_fitted,
+                                   test_x = test_set[, -"transactionRevenue"],
+                                   test_y = y_has_revenue_test,
+                                   thresholds = c(0.1, 0.3, 0.5, 0.7, 0.9))
+show(metrics, "")
+```
+
+we also can use ROC curve to find the optimal threshold
+
+```{r, warning=FALSE, message=FALSE}
+probs = predict(best_logistic_fitted, newdata = test_set, type = "response")
+test_roc = roc(y_has_revenue_test ~ probs, plot = TRUE, print.auc = TRUE)
+(best_threshold <- coords(test_roc, "best", transpose = TRUE))
+```
+
+```{r, warning=FALSE, message=FALSE}
+logistic_clf <- function(x, cutoff) {
+  probs = predict(best_logistic_fitted, newdata = x, type = "response")
+  predicted <- ifelse(probs > cutoff, 1, 0)
+  return(predicted)
+}
+
+stack_predictor <- function(model_clf, model_reg, x, cutoff) {
+  hasRevenue <- model_clf(x, cutoff)
+  hasRevenue_idx <- which(hasRevenue == 1)
+  pred_revenue <- predict(model_reg, x[hasRevenue_idx, ])
+  hasRevenue[hasRevenue_idx] <- pred_revenue
+  return(hasRevenue)
+}
+
+pred_revenue <- stack_predictor(logistic_clf, best_fit_lm, test_set, best_threshold[[1]])
+stack_logistic_lm_rmse <- RMSE(test_set[, transactionRevenue], pred_revenue)
+cat("Logistic regression with linear regression (RMSE): ", stack_logistic_lm_rmse, "\n")
+
+
+pred_revenue_dt <- stack_predictor(logistic_clf, 
+                                optimal_tree, 
+                                test_set, 
+                                best_threshold[[1]])
+stack_logistic_cart_rmse <- RMSE(test_set[, transactionRevenue], pred_revenue_dt)
+cat("Logistic regression with Decision Tree (RMSE): ", stack_logistic_cart_rmse, "\n")
+```
+
+# 5.Advanced Methods
+
+In the final part, we explore two advanced methods -- neural networks and xgboost
+
+
+## 5.1.Neural Networks
+
+Multilayer perceptron is a popular deep learning tool for regression task. Unlike the traditional MLP network, we add two dropout layer to this model, which help to improve the generalization ability to avoid overfitting.
+![](https://rasbt.github.io/mlxtend/user_guide/classifier/NeuralNetMLP_files/neuralnet_mlp_1.png)
+
+```{r, warning=FALSE, message=FALSE}
+set.seed(2020)
+features_rm <- c("y_has_revenue", "pageviews", numeric_cols)
+one_hot_X <- one_hot(train_set[, -..features_rm])
+features_rm <- c("pageviews", numeric_cols)
+X <- cbind(train_set[, ..features_rm], one_hot_X)
+y <- X$transactionRevenue
+X$transactionRevenue <- NULL
+X <- as.matrix(X)
+
+m_nn <- keras_model_sequential() 
+
+m_nn %>% 
+  layer_dense(units = 256, activation = "relu", input_shape = ncol(X)) %>% 
+  layer_dropout(rate = 0.5) %>% 
+  layer_dense(units = 128, activation = "relu") %>%
+  layer_dropout(rate = 0.25) %>%
+  layer_dense(units = 1, activation = "linear")
+
+
+(m_nn %>% compile(loss = "mean_squared_error",
+         metrics = custom_metric("rmse", function(y_true, y_pred) 
+         k_sqrt(metric_mean_squared_error(y_true, y_pred))),
+         optimizer = optimizer_adadelta()))
+
+```
+
+
+```{r, warning=FALSE, message=FALSE}
+history <-fit (m_nn, x = X, y = y, 
+      epochs = 50, 
+      batch_size = 128, 
+      verbose = 30, 
+      validation_split = 0.2,
+      callbacks = callback_early_stopping(patience = 5))
+history$params$epochs <- length(history$metrics$val_loss)
+plot(history)
+```
+
+From the plot of training process we can see that the model has been well trained as the metirc and loss on both valid set and training set seems converge. Then, we try it on our test set.
+
+```{r, warning=FALSE, message=FALSE}
+features_rm <- c("pageviews", numeric_cols)
+X_test <- one_hot(test_set[, -..features_rm])
+one_hot_x <- one_hot(test_set[, -..features_rm])
+X_test <- cbind(test_set[, ..features_rm], one_hot_x)
+y_test <- X_test$transactionRevenue
+X_test$transactionRevenue <- NULL
+X_test <- as.matrix(X_test)
+pred_nn <- predict(m_nn, X_test) 
+nn_rmse <- RMSE(y_test, pred_nn)
+cat("Nueral network (RMSE): ", nn_rmse, "\n")
+```
+
+## 5.2.Xgboost
+
+Xgboost is a highly efficient gradient boosting tool/library, and it is also one of the most popular machine learning tools people use in Kaggle competition. Gradient boosting that combines weak "classifiers" into a single strong learner, and update the weight of weak "classifiers" and the distribution of data every iteration. Similarly, xgboost also follows the principle of gradient boosting. There are, however, the difference in modeling implementation details. For example, xgboost used a more regularized model formalization to avoid over-fitting, and add many engineering features into the model(automatically fill missing values). 
+
+```{r, warning=FALSE, message=FALSE}
+set.seed(2020)
+dtrain <- xgb.DMatrix(X, 
+                      label = y)
+dtest <- xgb.DMatrix(X_test, 
+                      label = y_test)
+
+params <- list(objective = "reg:linear",
+               booster = "gbtree",
+               eval_metric = "rmse",
+               nthread = 4,
+               eta = 0.05,
+               max_depth = 7,
+               min_child_weight = 5,
+               gamma = 0,
+               subsample = 0.8,
+               colsample_bytree = 0.7,
+               colsample_bylevel = 0.6,
+               nrounds = 100
+         )
+m_xgb <- xgb.train(data = dtrain, 
+                   params = params, 
+                   nrounds= 50, 
+                   print_every_n = 20)
+
+
+y_pred <- predict(m_xgb, dtest)
+xgb_rmse <- RMSE(test_set[, transactionRevenue], y_pred)
+cat("Xgboost (RMSE): ", xgb_rmse, "\n")
+```
+
+# 6. Result
+
+```{r}
+
+res <- as.matrix(c(lm_rmse, 
+                   stack_logistic_lm_rmse,
+                   dt_rmse, 
+                   stack_logistic_cart_rmse, 
+                   xgb_rmse, 
+                   nn_rmse))
+
+rownames(res) <- c( "OLS Regression", 
+                    "OLS Regression with logitstic", 
+                    "Decison Tree", 
+                    "Decison Tree with logitstic", 
+                    "Xgboost", 
+                    "Neural Network")
+colnames(res) <- "RMSE"
+show(res, "Model performances")
+```
+

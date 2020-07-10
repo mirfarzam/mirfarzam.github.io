@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
+    <link href="./font/flaticon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://api.fontgraphy.ir/css?family=zar">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>استودیو پویان</title>
+
+    <style>
+        body {
+            font-family: zar, sans-serif;
+            color: #4a4849;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: zar, sans-serif;
+            color: rgb(22, 22, 20);
+        }
+        h1, h2, h3, h4, h5, h6, p, span {
+            direction: rtl;
+        }
+        section {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            position: relative;
+        }
+
+        section.robband {
+            min-height: 227px;
+            height: 25vh;
+        }
+        section.nimband {
+            min-height: 400px;
+            height: 50vh;
+        }
+
+        .background {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            z-index: -1;
+            top: 0;
+            left: 0;
+        }
+        .gocenter {
+            display: flex;
+            flex: auto;
+            justify-content: center;
+            padding:20px;
+            align-items: center;
+            flex-direction: column;
+        }
+        .background img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            position: absolute;
+        }
+        .background img.bottom{
+            object-position: bottom;
+        }
+        .background  a span.photographer {
+            position: absolute;
+            color: whitesmoke;
+            bottom: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        section .content {
+            width: 100%;
+            height: 100%
+        }
+        section#header h1.title {
+            margin-bottom: 20px;
+        }
+        section#header h2.subtitle {
+            color: whitesmoke;
+            opacity: 0.9;
+            text-shadow: 0 5px 7px rgba(0,0,0,0.5);
+        }
+
+        .scroll-downs {
+            position: absolute;
+            right: 0;
+            bottom: 25px;
+            left: 0;
+            margin: auto;
+            width :34px;
+            height: 55px;
+            transform: scale(0.6);
+        }
+        .mousey {
+            width: 3px;
+            padding: 10px 15px;
+            height: 35px;
+            border: 2px solid #373737;
+            border-radius: 25px;
+            opacity: 0.75;
+            box-sizing: content-box;
+        }
+        .scroller {
+            width: 3px;
+            height: 10px;
+            border-radius: 25%;
+            background-color: #373737;
+            animation-name: scroll;
+            animation-duration: 2.2s;
+            animation-timing-function: cubic-bezier(.15,.41,.69,.94);
+            animation-iteration-count: infinite;
+        }
+        @keyframes scroll {
+            0% { opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(15px); opacity: 0;}
+        }
+        #about{
+            background-color: ghostwhite;
+        }
+        #list {
+            background-color: ghostwhite;
+            height: auto;
+        }
+
+        textarea, select, input, button { outline: none; direction: rtl;}
+
+
+        .hero-lenz {
+            width: 300px;
+        }
+
+
+
+    </style>
+
+</head>
+<body>
+
+<section id="header">
+    <div class="content gocenter">
+        <h1 class="title">استودیو پویان</h1>
+        <h2 class="subtitle"></h2>
+        <img  class="hero-lenz" src="./images/pooyan-header.png">
+
+        <div class="scroll-downs">
+            <div class="mousey">
+                <div class="scroller"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .movieIcon{
+        display: inline-block;
+        width: 9em;
+        margin: 1em;
+        text-align: center;
+        vertical-align: top;
+    }
+    .movie {
+        padding: 10px;
+        display: inline-block;
+        font-family: "Flaticon";
+        font-size: 64px;
+        line-height: 1;
+    }
+    #items_ghabl {
+        content: "";
+        width: 100vw;
+        height: 100px;
+        background: linear-gradient(176deg, white 50%, #f0f0f0 50%);
+    }
+    #items {
+        padding-bottom: 0px;
+        padding-top: 20px;
+        background: #f0f0f0;
+    }
+    #items_donbal {
+        content: "";
+        width: 100vw;
+        height: 100px;
+        background: linear-gradient(176deg, #f0f0f0 50%, white 50%);
+        padding-bottom: 40px;
+    }
+
+</style>
+
+
+<section id="items_ghabl"></section>
+<section id="items" class="robband" style="height: auto">
+    <div class="content text-center container">
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-sm-6 gocenter">
+                <h5 class="movieIcon"><span class="movie flaticon-027-movie-ticket"></span></h5>
+                <h4>ساخت تیزر تبلیغاتی</h4>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6 gocenter">
+                <h5 class="movieIcon"><span class="movie flaticon-026-movie-3"></span></h5>
+                <h4>تدوین اصلاح رنگ و صدا گذاری</h4>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6 gocenter">
+                <h5 class="movieIcon"><span class="movie flaticon-002-video-camera"></span></h5>
+                <h4>تصویر و صدابرداری</h4>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6 gocenter">
+                <h5 class="movieIcon"><span class="movie flaticon-039-theatre"></span></h5>
+                <h4>تیاتر</h4>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="items_donbal"></section>
+
+<style>
+    .portitem img{
+        width: 90%;
+        margin: 0 auto;
+        display: block;
+    }
+    .portitem p{
+        text-align: center;
+        margin-top: 20px;
+        padding-right: 10%;
+        padding-left: 10%;
+        margin-bottom: 30px;
+    }
+</style>
+
+<section id="portfolio" style="height: auto">
+    <div class="container">
+        <div class="row gocenter justify-content-center">
+            <h4>نمونه کارها
+            </h4>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-4 col-sm-6 portitem">
+                <img src="images/portfolio/WhatsApp Image 2020-07-04 at 2.44.11 AM.jpeg">
+                <p>تدوین و اصلا‌ح‌رنگ و کارگردانی فیلم کوتاه بازی</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 portitem">
+                <img src="images/portfolio/WhatsApp%20Image%202020-07-04%20at%202.45.36%20AM.jpeg">
+                <p>تصویربرداری و تدوین و اصلاح‌رنگ نمایش محیطی چهارپاره</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 portitem">
+                <img src="images/portfolio/WhatsApp%20Image%202020-07-04%20at%202.46.43%20AM.jpeg">
+                <p>تهیه‌کنندگی و تدوین و اصلاح‌رنگ فیلم کوتاه تاسیان</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 portitem">
+                <img src="images/portfolio/WhatsApp%20Image%202020-07-04%20at%202.48.20%20AM.jpeg">
+                <p> تصویربرداری و تدوین و اصلاح‌رنگ فیلم نمایش حصارک</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 portitem">
+                <img src="images/portfolio/WhatsApp%20Image%202020-07-04%20at%202.52.19%20AM.jpeg">
+                <p>تصویربرداری و تدوین و اصلاح‌رنگ فیلم شب تولد</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 portitem">
+                <img src="images/portfolio/WhatsApp%20Image%202020-07-04%20at%202.53.32%20AM.jpeg">
+                <p>تصویربرداری و تدوین و اطلاح‌رنگ تیزر برنامه تلوزیونی چهل تیکه</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 portitem">
+                <img src="images/portfolio/WhatsApp%20Image%202020-07-04%20at%202.58.20%20AM.jpeg">
+                <p>تصویربرداری و تدوین و اصلاح‌رنگ فیلم نمایش روميو و ژانت</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<style>
+    #footer {
+        background-color: #f0f0f0;
+    }
+    .bfooter{
+        width: 50vw;
+        display: inline-block;
+        height: 50px;
+        padding: 0;
+        margin-bottom: -11px;
+    }
+    #footer1{
+        background: linear-gradient(184deg, white 50%, #f0f0f0 50%);
+    }
+    #footer2 {
+        background: linear-gradient(176deg, white 50%, #f0f0f0 50%);
+    }
+    .headcolor {
+        height: 200px;
+    }
+</style>
+
+
+<section class="bfooter" id="footer1"></section><section class="bfooter" id="footer2"></section>
+<section id="footer" class="robband">
+    <div class="content gocenter headcolor">
+        <h1>استودیو پویان</h1>
+        <p>با ما تماس بگیرید : ۲۲۵۱۴۱۹۷</p>
+    </div>
+</section>
+
+
+
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
